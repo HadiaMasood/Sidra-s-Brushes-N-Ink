@@ -1,0 +1,195 @@
+/* ===== Ink & Calligraphy Footer ===== */
+.footer {
+  background: var(--ink-primary);
+  color: var(--paper-bg);
+  padding: 60px 20px 30px;
+  margin-top: 80px;
+  border-top: 1px solid var(--gold-accent);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle Ink Texture Overlay */
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    radial-gradient(circle at 15% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(200, 169, 81, 0.05) 0%, transparent 25%);
+  pointer-events: none;
+}
+
+/* Artistic Brush Stroke Border Effect via Mask (optional improvement for later) */
+/* For now, a clean gold line is elegant. */
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 40px;
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Column Animation */
+.footer-column {
+  animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Footer Title */
+.footer-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+  color: var(--gold-accent);
+  border-bottom: 1px solid rgba(200, 169, 81, 0.2);
+  padding-bottom: 10px;
+  display: inline-block;
+  letter-spacing: 0.02em;
+}
+
+/* Description */
+.footer-description {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: rgba(253, 251, 247, 0.8);
+  /* Paper white with opacity */
+  margin-bottom: 15px;
+  font-weight: 300;
+}
+
+/* Social Icons */
+.footer-social {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.social-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.03);
+  /* Subtle glass effect */
+  border: 1px solid rgba(200, 169, 81, 0.2);
+  color: var(--gold-accent);
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+}
+
+.social-icon:hover {
+  background: var(--gold-accent);
+  color: var(--ink-primary);
+  border-color: var(--gold-accent);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Footer Links */
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links li {
+  margin-bottom: 12px;
+}
+
+.footer-links a {
+  color: rgba(253, 251, 247, 0.7);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+}
+
+.footer-links a:hover {
+  color: var(--gold-accent);
+  padding-left: 5px;
+}
+
+/* Contact Info */
+.footer-column p {
+  color: rgba(253, 251, 247, 0.8);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Footer Bottom */
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.copyright {
+  font-size: 0.85rem;
+  color: rgba(253, 251, 247, 0.5);
+  margin: 0;
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .footer {
+    padding: 40px 15px 20px;
+    text-align: center;
+  }
+
+  .footer-container {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
+  .footer-social {
+    justify-content: center;
+  }
+
+  .footer-title {
+    margin-bottom: 15px;
+    display: inline-block;
+  }
+
+  .footer-links a:hover {
+    padding-left: 0;
+    /* wrapped links might behave oddly with padding */
+    color: var(--gold-accent);
+  }
+}

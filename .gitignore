@@ -1,0 +1,54 @@
+# Dependency directories
+node_modules/
+backend/vendor/
+frontend/node_modules/
+
+# Laravel specific
+backend/.env
+backend/.env.backup
+backend/storage/*.key
+backend/storage/framework/cache/data/*
+backend/storage/framework/sessions/*
+backend/storage/framework/testing/*
+backend/storage/framework/views/*
+backend/storage/logs/*
+backend/database/database.sqlite
+backend/database/database.sqlite-journal
+
+# React / Frontend specific
+frontend/dist/
+frontend/build/
+frontend/.env
+frontend/.env.local
+frontend/.env.production.local
+
+# Editor and System junk
+.vscode/
+.history/
+.kiro/
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Project specific temporary files
+backend/activate_all_cute_artworks.php
+backend/admin_token.txt
+backend/analytics_debug.txt
+backend/artworks_dump.txt
+backend/audit_results.txt
+backend/categories_output.txt
+backend/cats_final.txt
+backend/cats_hex.txt
+backend/counts_output.txt
+backend/curl_body.html
+backend/curl_headers.txt
+backend/server.mock.php
+backend/server.php.backup
+backend/tmp_count.php
+backend/tmp_logo.png
+backend/tmp_logo_upload.png
+ERRORS_FIXED_REPORT.md
+Canvas_Brush_API.postman_collection.json

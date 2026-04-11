@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Artwork Update Test</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .form-group { margin: 15px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 4px; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Artwork Update Test</h1>
+    
+    <div class="form-group">
+        <label>Token:</label>
+        <input type="password" id="token" placeholder="Enter your auth token">
+    </div>
+
+    <div class="form-group">
+        <label>Artwork ID:</label>
+        <input type="number" id="artworkId" placeholder="Enter artwork ID" value="1">
+    </div>
+
+    <div class="form-group">
+        <label>New Title:</label>
+        <input type="text" id="title" placeholder="Enter new title">
+    </div>
+
+    <div class="form-group">
+        <label>New Description:</label>
+        <textarea id="description" placeholder="Enter new description" rows="4"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>New Price:</label>
+        <input type="number" id="price" placeholder="Enter new price" step="0.01">
+    </div>
+
+    <div class="form-group">
+        <label>Category:</label>
+        <input type="text" id="category" placeholder="Enter category">
+    </div>
+
+    <button onclick="updateArtwork()">Update Artwork</button>
+
+    <div id="result" class="result" style="display: none;"></div>
+
+    <script>
+        function updateArtwork() {
+            const token = document.getElementById('token').value;
+            const artworkId = document.getElementById('artworkId').value;
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const price = document.getElementById('price').value;
+            const category = document.getElementById('category').value;
+            const resultDiv = document.getElementById('result');
+
+            if (!token) {
+                resultDiv.innerHTML = '<p class="error">❌ Please enter a token</p>';
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            const formData = new FormData();
+            if (title) formData.append('title', title);
+            if (description) formData.append('description', description);
+            if (price) formData.append('price', price);
+            if (category) formData.append('category', category);
+
+            console.log('Sending PUT request to /artworks/' + artworkId);
+            console.log('Token:', token);
+
+            fetch(`http://localhost:8000/api/artworks/${artworkId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: formData
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                if (data.message === 'Artwork updated successfully') {
+                    resultDiv.innerHTML = `<p class="success">✅ ${data.message}</p><pre>${JSON.stringify(data.data, null, 2)}</pre>`;
+                } else {
+                    resultDiv.innerHTML = `<p class="error">❌ ${data.message || 'Unknown error'}</p><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                }
+                resultDiv.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `<p class="error">❌ Error: ${error.message}</p>`;
+                resultDiv.style.display = 'block';
+            });
+        }
+    </script>
+</body>
+</html>

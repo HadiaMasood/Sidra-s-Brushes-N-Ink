@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Flow Test</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .log { border: 1px solid #ddd; padding: 15px; margin: 10px 0; background: #f9f9f9; border-left: 4px solid #007bff; }
+        .log.success { border-left-color: #28a745; }
+        .log.error { border-left-color: #dc3545; }
+        .log.info { border-left-color: #17a2b8; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        input { width: 100%; padding: 8px; margin: 5px 0; box-sizing: border-box; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Login Flow Test</h1>
+        
+        <div>
+            <label>Email:</label>
+            <input type="email" id="email" value="admin@example.com">
+            
+            <label>Password:</label>
+            <input type="password" id="password" value="admin123">
+            
+            <button onclick="testLogin()">Test Login</button>
+            <button onclick="clearLogs()">Clear Logs</button>
+        </div>
+        
+        <div id="logs"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000/api';
+        
+        function log(message, type = 'info') {
+            const logsDiv = document.getElementById('logs');
+            const logDiv = document.createElement('div');
+            logDiv.className = `log ${type}`;
+            logDiv.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logsDiv.appendChild(logDiv);
+            console.log(`[${type.toUpperCase()}]`, message);
+        }
+        
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+        }
+        
+        async function testLogin() {
+            clearLogs();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            log(`Starting login test with email: ${email}`, 'info');
+            
+            try {
+                log(`Calling ${API_URL}/admin/login...`, 'info');
+                
+                const response = await fetch(`${API_URL}/admin/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                log(`Response status: ${response.status}`, 'info');
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log(`✅ Login successful!`, 'success');
+                    log(`Message: ${data.message}`, 'success');
+                    log(`Token: ${data.token ? data.token.substring(0, 20) + '...' : 'NOT PROVIDED'}`, 'success');
+                    log(`User: ${JSON.stringify(data.user)}`, 'success');
+                    
+                    // Test what the frontend would do
+                    log(`Storing in localStorage...`, 'info');
+                    localStorage.setItem('auth_token', data.token);
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    log(`✅ Data stored in localStorage`, 'success');
+                    
+                    // Test ProtectedRoute check
+                    log(`Testing ProtectedRoute check...`, 'info');
+                    const storedToken = localStorage.getItem('auth_token') || localStorage.getItem('token');
+                    const storedUserStr = localStorage.getItem('user');
+                    
+                    if (!storedToken) {
+                        log(`❌ No token found`, 'error');
+                        return;
+                    }
+                    log(`✅ Token found`, 'success');
+                    
+                    let storedUser = {};
+                    try {
+                        storedUser = JSON.parse(storedUserStr || '{}');
+                        log(`✅ User parsed: ${JSON.stringify(storedUser)}`, 'success');
+                    } catch (e) {
+                        log(`❌ Error parsing user: ${e.message}`, 'error');
+                        return;
+                    }
+                    
+                    if (storedUser.role !== 'admin') {
+                        log(`❌ User role is not admin: ${storedUser.role}`, 'error');
+                        return;
+                    }
+                    log(`✅ User is admin`, 'success');
+                    
+                    log(`✅ Login flow would succeed! Ready to navigate to /admin/dashboard`, 'success');
+                } else {
+                    log(`❌ Login failed with status ${response.status}`, 'error');
+                    log(`Response: ${JSON.stringify(data)}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Initial check
+        log(`API Base URL: ${API_URL}`, 'info');
+        log(`Ready to test login. Click "Test Login" button.`, 'info');
+    </script>
+</body>
+</html>

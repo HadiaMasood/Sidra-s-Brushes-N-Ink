@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Artwork Update</title>
+</head>
+<body>
+    <h1>Test Artwork Update</h1>
+    
+    <div id="result"></div>
+    
+    <button onclick="testUpdate()">Test Update Artwork #1</button>
+    
+    <script>
+        const API_URL = 'http://localhost:8000/api';
+        const TOKEN = '7|GcRbEuHgDaqaihQcHZNkx1Swi5qorHeb5T1KU9VO5281e9d4'; // From admin_token.txt
+        
+        async function testUpdate() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>Testing update...</p>';
+            
+            try {
+                // First, get current artwork
+                const getResponse = await fetch(`${API_URL}/artworks/1`);
+                const currentArtworkResponse = await getResponse.json();
+                
+                console.log('Current artwork response:', currentArtworkResponse);
+                
+                // Handle different response structures
+                const currentArtwork = currentArtworkResponse.data || currentArtworkResponse;
+                
+                console.log('Current artwork:', currentArtwork);
+                resultDiv.innerHTML += `<p>Current Title: ${currentArtwork.title}</p>`;
+                resultDiv.innerHTML += `<p>Current Price: ${currentArtwork.price}</p>`;
+                resultDiv.innerHTML += `<p>Current Framed Price: ${currentArtwork.framed_price || 'NULL'}</p>`;
+                
+                // Now update
+                const formData = new FormData();
+                formData.append('_method', 'PUT');
+                formData.append('title', 'Updated via Test - ' + Date.now());
+                formData.append('description', currentArtwork.description || '');
+                formData.append('price', '9999.00');
+                formData.append('framed_price', '12999.00');
+                formData.append('dimensions', currentArtwork.dimensions || '');
+                formData.append('medium', currentArtwork.medium || '');
+                formData.append('artist', currentArtwork.artist || '');
+                formData.append('year_created', currentArtwork.year_created || '2026');
+                formData.append('category', currentArtwork.category || '');
+                formData.append('stock_quantity', currentArtwork.stock_quantity || '1');
+                formData.append('active', '1');
+                formData.append('featured', '1');
+                
+                console.log('Sending update request...');
+                
+                const updateResponse = await fetch(`${API_URL}/artworks/1`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${TOKEN}`,
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                });
+                
+                const updateResult = await updateResponse.json();
+                console.log('Update response:', updateResult);
+                
+                const updatedArtwork = updateResult.data || updateResult;
+                
+                if (updateResponse.ok) {
+                    resultDiv.innerHTML += '<p style="color: green;">✓ Update successful!</p>';
+                    resultDiv.innerHTML += `<p>New Title: ${updatedArtwork.title}</p>`;
+                    resultDiv.innerHTML += `<p>New Price: ${updatedArtwork.price}</p>`;
+                    resultDiv.innerHTML += `<p>New Framed Price: ${updatedArtwork.framed_price || 'NULL'}</p>`;
+                } else {
+                    resultDiv.innerHTML += '<p style="color: red;">✗ Update failed!</p>';
+                    resultDiv.innerHTML += `<pre>${JSON.stringify(updateResult, null, 2)}</pre>`;
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML += `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

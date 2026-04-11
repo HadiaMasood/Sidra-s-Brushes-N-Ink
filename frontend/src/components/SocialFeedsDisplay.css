@@ -1,0 +1,377 @@
+.social-feeds-display {
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  color: white;
+}
+
+.feeds-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.feeds-header h2 {
+  font-size: 2.5rem;
+  margin: 0 0 10px 0;
+  font-weight: 700;
+}
+
+.feeds-header .subtitle {
+  font-size: 1.1rem;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.social-links {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
+
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  text-decoration: none;
+  border-radius: 25px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.social-link:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: white;
+  transform: translateY(-2px);
+}
+
+.social-link.instagram:hover {
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  border-color: white;
+}
+
+.social-link.facebook:hover {
+  background: #1877f2;
+  border-color: white;
+}
+
+.social-link.twitter:hover {
+  background: #000;
+  border-color: white;
+}
+
+.social-link.youtube:hover {
+  background: #ff0000;
+  border-color: white;
+}
+
+.social-link.tiktok:hover {
+  background: #000;
+  border-color: white;
+}
+
+.feeds-filters {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.filter {
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.filter:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: white;
+}
+
+.filter.active {
+  background: white;
+  color: #667eea;
+  border-color: white;
+}
+
+.feeds-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.feed-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+}
+
+.feed-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+
+.feed-platform {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.platform-icon {
+  font-size: 1.5rem;
+}
+
+.platform-name {
+  flex: 1;
+  color: #333;
+}
+
+.feed-date {
+  color: #999;
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+.feed-content {
+  flex: 1;
+  padding: 15px;
+}
+
+.content-text {
+  margin: 0;
+  color: #555;
+  line-height: 1.6;
+  word-break: break-word;
+  font-size: 0.95rem;
+  max-height: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+}
+
+.feed-media {
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+.feed-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.feed-card:hover .feed-media img {
+  transform: scale(1.05);
+}
+
+.feed-stats {
+  display: flex;
+  gap: 20px;
+  padding: 12px 15px;
+  border-top: 1px solid #e9ecef;
+  border-bottom: 1px solid #e9ecef;
+  background: #f8f9fa;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.stat .icon {
+  font-size: 1.2rem;
+}
+
+.stat .count {
+  color: #333;
+}
+
+.feed-comments {
+  padding: 15px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.feed-comments h4 {
+  margin: 0 0 12px 0;
+  color: #333;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.comment-item {
+  background: white;
+  padding: 10px;
+  border-radius: 6px;
+  border-left: 3px solid #667eea;
+}
+
+.comment-author {
+  color: #333;
+  font-size: 0.85rem;
+  display: block;
+}
+
+.comment-text {
+  margin: 5px 0 0 0;
+  color: #666;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.more-comments {
+  margin: 10px 0 0 0;
+  color: #999;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.view-post-btn {
+  display: block;
+  padding: 12px 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  text-decoration: none;
+  text-align: center;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.view-post-btn:hover {
+  opacity: 0.9;
+  text-decoration: none;
+}
+
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: white;
+  font-size: 1.1rem;
+}
+
+.no-feeds {
+  text-align: center;
+  padding: 60px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: white;
+  font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .social-feeds-display {
+    padding: 30px 15px;
+  }
+
+  .feeds-header h2 {
+    font-size: 1.8rem;
+  }
+
+  .feeds-header .subtitle {
+    font-size: 0.95rem;
+  }
+
+  .feeds-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .social-links {
+    gap: 10px;
+  }
+
+  .social-link {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .social-feeds-display {
+    padding: 20px 10px;
+  }
+
+  .feeds-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .feeds-header .subtitle {
+    font-size: 0.9rem;
+  }
+
+  .social-links {
+    gap: 8px;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 10px;
+  }
+
+  .social-link {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  .feeds-filters {
+    gap: 8px;
+  }
+
+  .filter {
+    padding: 8px 15px;
+    font-size: 0.85rem;
+  }
+
+  .feed-card {
+    border-radius: 8px;
+  }
+
+  .feed-media {
+    height: 180px;
+  }
+
+  .content-text {
+    font-size: 0.9rem;
+    -webkit-line-clamp: 3;
+  }
+}

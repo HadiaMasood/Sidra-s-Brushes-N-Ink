@@ -1,0 +1,54 @@
+{
+  "name": "Sidra's Brushes N Ink - Authentic Art Gallery",
+  "short_name": "Sidra Art",
+  "description": "Authentic Art Gallery specializing in Islamic Calligraphy, Nature Art, and Custom Paintings",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#8B4513",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/sidra-inkbox-brushes-logo.jpeg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/sidra-inkbox-brushes-logo.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "lifestyle", "art"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "scope": "/",
+  "screenshots": [
+    {
+      "src": "/sidras-brushes-ink-home-hero.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "label": "Home page showcasing featured artworks"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Gallery",
+      "short_name": "Gallery",
+      "description": "Browse our art collection",
+      "url": "/gallery",
+      "icons": [{ "src": "/sidra-inkbox-brushes-logo.jpeg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Cart",
+      "short_name": "Cart",
+      "description": "View shopping cart",
+      "url": "/cart",
+      "icons": [{ "src": "/sidra-inkbox-brushes-logo.jpeg", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logo Upload Test</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; margin-bottom: 20px; }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 500;
+        }
+        input[type="file"] {
+            padding: 10px;
+            border: 2px dashed #667eea;
+            border-radius: 6px;
+            width: 100%;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+        }
+        .status.show {
+            display: block;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .log {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        .log-success { color: #28a745; }
+        .log-error { color: #dc3545; }
+        .log-info { color: #17a2b8; }
+        .logo-preview {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .logo-preview img {
+            max-width: 300px;
+            max-height: 300px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ Logo Upload Test</h1>
+        <p style="color: #666; margin-bottom: 20px;">Test uploading logo with direct fetch API</p>
+
+        <div class="form-group">
+            <label for="logoFile">Select Logo Image</label>
+            <input type="file" id="logoFile" accept="image/*" required>
+        </div>
+
+        <button onclick="uploadLogo()">Upload Logo</button>
+        <button onclick="clearLog()" style="background: #6c757d; margin-left: 10px;">Clear Log</button>
+
+        <div id="status" class="status"></div>
+        <div id="logoPreview" class="logo-preview"></div>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000/api';
+        const TOKEN = localStorage.getItem('auth_token') || localStorage.getItem('token');
+
+        function addLog(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status show ${type}`;
+        }
+
+        async function uploadLogo() {
+            const fileInput = document.getElementById('logoFile');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                showStatus('❌ Please select a logo image', 'error');
+                return;
+            }
+
+            if (!TOKEN) {
+                showStatus('❌ Not authenticated. Please login to admin first.', 'error');
+                return;
+            }
+
+            clearLog();
+            addLog('Starting logo upload...', 'info');
+            addLog(`File: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`, 'info');
+            addLog(`File type: ${file.type}`, 'info');
+
+            showStatus('⏳ Uploading logo...', 'info');
+
+            try {
+                const formData = new FormData();
+                formData.append('logo', file);
+
+                addLog(`Sending POST request to ${API_URL}/admin/config/upload-logo`, 'info');
+                addLog(`Authorization: Bearer ${TOKEN.substring(0, 20)}...`, 'info');
+
+                // Use raw fetch with timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+                const response = await fetch(`${API_URL}/admin/config/upload-logo`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${TOKEN}`,
+                    },
+                    body: formData,
+                    signal: controller.signal,
+                });
+
+                clearTimeout(timeoutId);
+                addLog(`Response received. Status: ${response.status} ${response.statusText}`, 'info');
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    addLog(`❌ HTTP Error ${response.status}`, 'error');
+                    addLog(`Error response: ${errorText}`, 'error');
+                    showStatus(`❌ Upload failed: HTTP ${response.status}`, 'error');
+                    return;
+                }
+
+                const responseText = await response.text();
+                addLog(`Response body (${responseText.length} chars): ${responseText.substring(0, 100)}...`, 'info');
+
+                if (!responseText) {
+                    addLog('⚠️ Empty response body', 'error');
+                    showStatus('⚠️ Upload may have succeeded but response was empty', 'error');
+                    return;
+                }
+
+                const responseData = JSON.parse(responseText);
+                addLog(`✅ Response parsed as JSON`, 'success');
+                addLog(`Response.message: ${responseData.message}`, 'info');
+                addLog(`Response.logo_path: ${responseData.logo_path}`, 'info');
+
+                if (responseData.logo_path) {
+                    showStatus(`✅ Logo uploaded successfully!\nPath: ${responseData.logo_path}`, 'success');
+                    addLog(`✅ Upload complete!`, 'success');
+
+                    // Show preview
+                    const logoUrl = `${API_URL.replace('/api', '')}/storage/${responseData.logo_path}`;
+                    addLog(`Logo URL: ${logoUrl}`, 'info');
+                    
+                    const previewDiv = document.getElementById('logoPreview');
+                    previewDiv.innerHTML = `<img src="${logoUrl}" alt="Uploaded Logo" onload="console.log('Logo image loaded')" onerror="console.log('Logo image failed to load')">`;
+                } else {
+                    showStatus('⚠️ Upload response missing logo_path', 'error');
+                }
+
+            } catch (error) {
+                addLog(`❌ Error: ${error.name}`, 'error');
+                addLog(`Message: ${error.message}`, 'error');
+                
+                if (error.name === 'AbortError') {
+                    showStatus('❌ Upload timeout (request took too long)', 'error');
+                    addLog('Request timeout - server may be slow or request too large', 'error');
+                } else {
+                    showStatus(`❌ Error: ${error.message}`, 'error');
+                    addLog(error.stack, 'error');
+                }
+            }
+        }
+
+        // Check token on page load
+        window.addEventListener('load', () => {
+            if (TOKEN) {
+                addLog('✅ Auth token found in localStorage', 'success');
+                addLog(`Token preview: ${TOKEN.substring(0, 30)}...`, 'info');
+            } else {
+                addLog('❌ No auth token found. Please login to admin first.', 'error');
+            }
+        });
+
+        // Allow Enter key to upload
+        document.getElementById('logoFile').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') uploadLogo();
+        });
+    </script>
+</body>
+</html>

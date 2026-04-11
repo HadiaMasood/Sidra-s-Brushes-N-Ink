@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<browserconfig>
+  <msapplication>
+    <tile>
+      <square150x150logo src="/sidra-inkbox-brushes-logo.jpeg"/>
+      <square310x310logo src="/sidra-inkbox-brushes-logo.jpeg"/>
+      <TileColor>#8B4513</TileColor>
+    </tile>
+  </msapplication>
+</browserconfig>

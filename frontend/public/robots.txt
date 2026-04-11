@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /cart
+Disallow: /wishlist
+Disallow: /checkout
+Disallow: /api/
+
+# Crawl-delay
+Crawl-delay: 1
+
+# Sitemap
+Sitemap: https://sidrabni.com/sitemap.xml
+
+# Additional sitemaps
+Sitemap: https://sidrabni.com/sitemap-images.xml
+
+# Host
+Host: https://sidrabni.com

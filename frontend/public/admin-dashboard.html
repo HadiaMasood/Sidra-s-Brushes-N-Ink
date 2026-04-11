@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Canvas & Brush Admin Dashboard">
+  <title>Canvas & Brush - Admin Dashboard</title>
+  <link rel="stylesheet" href="admin-dashboard.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>Canvas & Brush</h2>
+        <p>Admin Panel</p>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#dashboard" class="nav-item active" data-section="dashboard">
+          <span class="icon">📊</span>
+          <span>Dashboard</span>
+        </a>
+        <a href="#artworks" class="nav-item" data-section="artworks">
+          <span class="icon">🎨</span>
+          <span>Artworks</span>
+        </a>
+        <a href="#orders" class="nav-item" data-section="orders">
+          <span class="icon">📦</span>
+          <span>Orders</span>
+        </a>
+        <a href="#reviews" class="nav-item" data-section="reviews">
+          <span class="icon">⭐</span>
+          <span>Reviews</span>
+        </a>
+        <a href="#contacts" class="nav-item" data-section="contacts">
+          <span class="icon">✉️</span>
+          <span>Messages</span>
+        </a>
+        <a href="#config" class="nav-item" data-section="config">
+          <span class="icon">⚙️</span>
+          <span>Configuration</span>
+        </a>
+        <a href="#analytics" class="nav-item" data-section="analytics">
+          <span class="icon">📈</span>
+          <span>Analytics</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="logoutBtn" class="logout-btn">
+          <span class="icon">🚪</span>
+          <span>Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <h1 id="pageTitle">Dashboard</h1>
+        </div>
+        <div class="header-right">
+          <div class="user-info">
+            <span id="userEmail">admin@example.com</span>
+            <div class="user-avatar">A</div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <div class="content">
+        <!-- Dashboard Section -->
+        <section id="dashboard-section" class="section active">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">💰</div>
+              <div class="stat-content">
+                <h3>Total Revenue</h3>
+                <p class="stat-value" id="totalRevenue">Rs. 0</p>
+                <span class="stat-change">+12% from last month</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">📦</div>
+              <div class="stat-content">
+                <h3>Total Orders</h3>
+                <p class="stat-value" id="totalOrders">0</p>
+                <span class="stat-change" id="pendingOrders">0 pending</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">🎨</div>
+              <div class="stat-content">
+                <h3>Artworks</h3>
+                <p class="stat-value" id="totalArtworks">0</p>
+                <span class="stat-change">Published</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">👥</div>
+              <div class="stat-content">
+                <h3>Total Customers</h3>
+                <p class="stat-value" id="totalCustomers">0</p>
+                <span class="stat-change">+8.3% growth</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">⭐</div>
+              <div class="stat-content">
+                <h3>Pending Reviews</h3>
+                <p class="stat-value" id="pendingReviews">0</p>
+                <span class="stat-change">Needs approval</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">📱</div>
+              <div class="stat-content">
+                <h3>Social Engagement</h3>
+                <p class="stat-value">Active</p>
+                <span class="stat-change">Connected</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-grid">
+            <div class="card">
+              <h2>Recent Orders</h2>
+              <div id="recentOrders" class="orders-list">
+                <p style="text-align: center; color: #7f8c8d; padding: 20px;">Loading...</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <h2>Quick Actions</h2>
+              <div class="quick-actions">
+                <button class="action-btn" onclick="navigateTo('artworks')">
+                  <span class="icon">➕</span>
+                  <span>Add Artwork</span>
+                </button>
+                <button class="action-btn" onclick="navigateTo('config')">
+                  <span class="icon">⚙️</span>
+                  <span>Site Config</span>
+                </button>
+                <button class="action-btn" onclick="navigateTo('reviews')">
+                  <span class="icon">⭐</span>
+                  <span>Manage Reviews</span>
+                </button>
+                <button class="action-btn" onclick="navigateTo('analytics')">
+                  <span class="icon">📊</span>
+                  <span>Analytics</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Artworks Section -->
+        <section id="artworks-section" class="section">
+          <div class="section-header">
+            <h2>Manage Artworks</h2>
+            <button class="btn btn-primary" onclick="toggleArtworkForm()">+ Add New Artwork</button>
+          </div>
+
+          <!-- Add/Edit Artwork Form -->
+          <div id="artworkFormContainer" class="card" style="display: none; margin-bottom: 20px;">
+            <h3>Add New Artwork</h3>
+            <form id="artworkForm" onsubmit="saveArtwork(event)">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Artwork Title *</label>
+                  <input type="text" id="artworkTitle" class="form-input" required>
+                </div>
+                <div class="form-group">
+                  <label>Medium (e.g., Oil on Canvas) *</label>
+                  <input type="text" id="artworkMedium" class="form-input" required>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Price (Rs.) *</label>
+                  <input type="number" id="artworkPrice" class="form-input" min="0" required>
+                </div>
+                <div class="form-group">
+                  <label>Category *</label>
+                  <select id="artworkCategory" class="form-input" required>
+                    <option value="">Select Category</option>
+                    <option value="Paintings">Paintings</option>
+                    <option value="Sculptures">Sculptures</option>
+                    <option value="Digital Art">Digital Art</option>
+                    <option value="Photography">Photography</option>
+                    <option value="Mixed Media">Mixed Media</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Description *</label>
+                <textarea id="artworkDescription" class="form-input" rows="4" placeholder="Describe the artwork..." required></textarea>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Dimensions (optional)</label>
+                  <input type="text" id="artworkDimensions" class="form-input" placeholder="e.g., 24x36 inches">
+                </div>
+                <div class="form-group">
+                  <label>Stock Quantity</label>
+                  <input type="number" id="artworkStock" class="form-input" min="0" value="1">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Image *</label>
+                <input type="file" id="artworkImage" class="form-input" accept="image/*">
+                <div id="imagePreview" style="margin-top: 10px;"></div>
+              </div>
+
+              <div class="form-group">
+                <label>
+                  <input type="checkbox" id="artworkFeatured"> Featured Artwork
+                </label>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Artwork</button>
+                <button type="button" class="btn btn-secondary" onclick="toggleArtworkForm()">Cancel</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Artworks List -->
+          <div class="card">
+            <div id="artworksList" class="artworks-list">
+              <p style="text-align: center; padding: 40px; color: #7f8c8d;">Loading artworks...</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Orders Section -->
+        <section id="orders-section" class="section">
+          <div class="section-header">
+            <h2>Manage Orders</h2>
+            <select id="orderFilter" class="filter-select" onchange="filterOrders(this.value)">
+              <option value="">All Orders</option>
+              <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
+              <option value="shipped">Shipped</option>
+              <option value="delivered">Delivered</option>
+            </select>
+          </div>
+          <div class="card">
+            <div id="ordersList" class="orders-list">
+              <p style="text-align:center;color:#7f8c8d;padding:20px;">No orders to show.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Placeholder for other sections (reviews, contacts, config, analytics) -->
+        <section id="reviews-section" class="section">
+          <div class="card">
+            <h2>Reviews</h2>
+            <div class="reviews-list">No reviews available.</div>
+          </div>
+        </section>
+
+        <section id="contacts-section" class="section">
+          <div class="card">
+            <h2>Messages</h2>
+            <div class="contacts-list">No messages.</div>
+          </div>
+        </section>
+
+        <section id="config-section" class="section">
+          <div class="card">
+            <h2>Configuration</h2>
+            <div style="margin-top:12px;">
+              <h3 style="margin-bottom:8px;">Brand Settings</h3>
+              <div style="display:flex;flex-direction:column;gap:8px;max-width:760px;">
+                <input id="brandName" placeholder="Site name (brand)" class="form-input" />
+                <input id="brandTagline" placeholder="Tagline" class="form-input" />
+                <textarea id="brandDescription" placeholder="Short description" class="form-input" rows="3"></textarea>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <button id="saveBrandBtn" class="btn btn-primary">Save Brand</button>
+                  <span id="brandSaveStatus" style="color:#16a34a;display:none">Saved</span>
+                </div>
+              </div>
+
+              <hr style="margin:18px 0" />
+
+              <h3 style="margin-bottom:8px;">Site Logo</h3>
+              <div style="display:flex;gap:12px;align-items:center;">
+                <div>
+                  <img id="logoPreview" src="" alt="Logo Preview" style="height:72px;object-fit:contain;background:#fff;padding:6px;border-radius:6px;border:1px solid #e6e9ef;" />
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                  <input type="file" id="logoFile" accept="image/*" />
+                  <div style="display:flex;gap:8px;">
+                    <button id="uploadLogoBtn" class="btn btn-primary">Upload Logo</button>
+                    <span id="logoUploadStatus" style="color:#16a34a;display:none">Uploaded</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="analytics-section" class="section">
+          <div class="card">
+            <h2>Analytics</h2>
+            <div>Basic analytics display.</div>
+          </div>
+        </section>
+
+      </div> <!-- end .content -->
+
+      <script>
+        // Basic API helper and data loaders
+        const API_BASE_URL = (function(){
+          // Default to local backend used in the project
+          return window.API_BASE_URL || 'http://127.0.0.1:8000/api';
+        })();
+
+        async function apiCall(method, endpoint, data) {
+          const url = endpoint.startsWith('http') ? endpoint : API_BASE_URL + endpoint;
+          const opts = { method, headers: {} };
+          const token = localStorage.getItem('auth_token');
+          if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+
+          if (data instanceof FormData) {
+            opts.body = data;
+          } else if (data !== undefined) {
+            opts.headers['Content-Type'] = 'application/json';
+            opts.body = JSON.stringify(data);
+          }
+
+          const res = await fetch(url, opts);
+          if (!res.ok) throw new Error('API error ' + res.status);
+          return res.json();
+        }
+
+        async function loadArtworks() {
+          try {
+            const res = await apiCall('GET', '/artworks?all=true');
+            const list = Array.isArray(res) ? res : (Array.isArray(res.data) ? res.data : []);
+            displayArtworks(list);
+            // Update stats
+            document.getElementById('totalArtworks').textContent = list.length;
+          } catch (err) {
+            console.error('loadArtworks error', err);
+            const el = document.getElementById('artworksList');
+            if (el) el.innerHTML = '<p style="text-align:center;color:#7f8c8d;padding:20px;">Failed to load artworks</p>';
+          }
+        }
+
+        function displayArtworks(arr) {
+          const container = document.getElementById('artworksList');
+          if (!container) return;
+          if (!arr || arr.length === 0) {
+            container.innerHTML = '<p style="text-align:center;padding:40px;color:#7f8c8d;">No artworks found</p>';
+            return;
+          }
+          container.innerHTML = '';
+          arr.forEach(artwork => {
+            const card = document.createElement('div');
+            card.className = 'artwork-card-full';
+            const imgUrl = artwork.image_url || artwork.image_path || '/placeholder.png';
+            card.innerHTML = `
+              <div class="artwork-image-container"><img src="${imgUrl}" alt="${(artwork.title||'Artwork').replace(/"/g,'')}"></div>
+              <div class="artwork-details">
+                <h4>${artwork.title || 'Untitled'}</h4>
+                <p style="margin:6px 0;color:#6b7280;font-size:14px;">${artwork.description || ''}</p>
+                <div style="margin-top:8px;font-weight:700;color:#b45309">Rs. ${parseFloat(artwork.price||0).toFixed(0)}</div>
+              </div>
+              <div class="artwork-actions">
+                <button class="btn-edit" onclick="window.open('/admin/artworks/${artwork.id}','_self')">Edit</button>
+                <button class="btn-delete" onclick="(async()=>{ if(!confirm('Delete artwork?')) return; try{ await apiCall('DELETE','/artworks/${artwork.id}'); alert('Deleted'); loadArtworks(); }catch(e){alert('Failed');}})()">${artwork.deleted_at? 'Restore' : 'Delete'}</button>
+              </div>
+            `;
+            container.appendChild(card);
+          });
+        }
+
+          // Config load/save helpers
+          async function loadConfig() {
+            try {
+              // Load grouped settings
+              const grouped = await apiCall('GET', '/admin/config/all');
+              // grouped is object like { branding: { brand_name: '...', ... }, ... }
+              const branding = grouped && grouped.branding ? grouped.branding : {};
+              document.getElementById('brandName').value = branding.brand_name || '';
+              document.getElementById('brandTagline').value = branding.brand_tagline || '';
+              document.getElementById('brandDescription').value = branding.brand_description || '';
+
+              // Load logo
+                try {
+                // Use public logo endpoint so admin dashboard can preview without requiring a token
+                const logoRes = await apiCall('GET', '/config/logo');
+                if (logoRes && logoRes.logo_url) {
+                  document.getElementById('logoPreview').src = logoRes.logo_url;
+                } else {
+                  document.getElementById('logoPreview').src = '';
+                }
+              } catch (e) {
+                console.debug('No logo found', e);
+              }
+            } catch (err) {
+              console.error('loadConfig error', err);
+            }
+          }
+
+          async function saveBrand() {
+            const data = {
+              brand_name: document.getElementById('brandName').value,
+              brand_tagline: document.getElementById('brandTagline').value,
+              brand_description: document.getElementById('brandDescription').value,
+            };
+            try {
+              document.getElementById('brandSaveStatus').style.display = 'none';
+              const res = await apiCall('POST', '/admin/config/brand', data);
+              // Refresh full config from server and notify other parts of the app
+              try {
+                const full = await apiCall('GET', '/admin/config/all');
+                try { localStorage.setItem('siteConfig', JSON.stringify(full)); } catch(e){}
+                window.dispatchEvent(new CustomEvent('configUpdated', { detail: full }));
+              } catch (e) {
+                console.debug('Could not refresh full config after saving brand', e);
+              }
+              document.getElementById('brandSaveStatus').style.display = 'inline';
+              setTimeout(()=>document.getElementById('brandSaveStatus').style.display='none',2000);
+              alert('Brand settings saved');
+            } catch (err) {
+              console.error('saveBrand error', err);
+              alert('Failed to save brand settings');
+            }
+          }
+
+          async function uploadLogoHandler() {
+            const input = document.getElementById('logoFile');
+            if (!input || !input.files || !input.files[0]) { alert('Choose a file'); return; }
+            const fd = new FormData();
+            fd.append('logo', input.files[0]);
+            try {
+              document.getElementById('logoUploadStatus').style.display = 'none';
+              const res = await apiCall('POST', '/admin/config/upload-logo', fd);
+              if (res && res.logo_url) {
+                document.getElementById('logoPreview').src = res.logo_url;
+              }
+              // Refresh full config and notify React app
+              try {
+                const full = await apiCall('GET', '/admin/config/all');
+                try { localStorage.setItem('siteConfig', JSON.stringify(full)); } catch(e){}
+                window.dispatchEvent(new CustomEvent('configUpdated', { detail: full }));
+              } catch (e) { console.debug('Could not refresh config after logo upload', e); }
+              document.getElementById('logoUploadStatus').style.display = 'inline';
+              setTimeout(()=>document.getElementById('logoUploadStatus').style.display='none',2000);
+              alert('Logo uploaded');
+            } catch (err) {
+              console.error('uploadLogo error', err);
+              alert('Logo upload failed');
+            }
+          }
+
+        // Define navigation and form helpers only if they don't already exist
+        if (typeof navigateTo === 'undefined') {
+          function navigateTo(section) {
+            try {
+              document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+              var id = section + '-section';
+              var el = document.getElementById(id);
+              if (el) el.classList.add('active');
+              var title = (section && section.charAt(0).toUpperCase() + section.slice(1)) || 'Dashboard';
+              var titleEl = document.getElementById('pageTitle');
+              if (titleEl) titleEl.textContent = title;
+              document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.section === section));
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (err) {
+              console.error('navigateTo error', err);
+            }
+          }
+        }
+
+        if (typeof toggleArtworkForm === 'undefined') {
+          function toggleArtworkForm(forceState) {
+            var container = document.getElementById('artworkFormContainer');
+            if (!container) return;
+            var isHidden = container.style.display === 'none' || container.style.display === '';
+            var show = typeof forceState === 'boolean' ? forceState : isHidden;
+            container.style.display = show ? 'block' : 'none';
+            if (show) {
+              var form = document.getElementById('artworkForm');
+              if (form) form.reset();
+              var preview = document.getElementById('imagePreview');
+              if (preview) preview.innerHTML = '';
+            }
+          }
+        }
+
+        if (typeof saveArtwork === 'undefined') {
+          function saveArtwork(e) {
+            try {
+              if (e && e.preventDefault) e.preventDefault();
+              var form = document.getElementById('artworkForm');
+              if (!form) return;
+              var fd = new FormData(form);
+              // If apiCall helper exists (earlier script), use it. Otherwise just log.
+              if (typeof apiCall === 'function') {
+                apiCall('POST', '/artworks', fd).then(function (res) {
+                  console.log('Artwork saved', res);
+                  toggleArtworkForm(false);
+                  if (typeof loadArtworks === 'function') loadArtworks();
+                }).catch(function (err) {
+                  console.error(err);
+                  alert('Failed to save artwork');
+                });
+              } else {
+                console.log('Artwork data (local)', Array.from(fd.entries()));
+                toggleArtworkForm(false);
+              }
+            } catch (err) {
+              console.error('saveArtwork error', err);
+            }
+          }
+        }
+
+        if (typeof filterOrders === 'undefined') {
+          function filterOrders(value) {
+            console.log('filterOrders', value);
+            // placeholder: implement server call or client-side filtering
+            var list = document.getElementById('ordersList');
+            if (list) list.innerHTML = '<p style="text-align:center;color:#7f8c8d;padding:20px;">Filtered: ' + (value || 'All') + '</p>';
+          }
+        }
+
+        // Wire up nav links to use navigateTo (in case inline onclicks aren't used)
+        document.addEventListener('DOMContentLoaded', function () {
+          document.querySelectorAll('.nav-item').forEach(function (el) {
+            el.addEventListener('click', function (ev) {
+              ev.preventDefault();
+              var section = el.dataset.section;
+              if (section) navigateTo(section);
+            });
+          });
+          // Show dashboard by default
+          navigateTo('dashboard');
+          // Load artworks for admin list
+          loadArtworks();
+          // Load site config and wire buttons
+          if (typeof loadConfig === 'function') loadConfig();
+          var saveBtn = document.getElementById('saveBrandBtn');
+          if (saveBtn) saveBtn.addEventListener('click', function (ev) { ev.preventDefault(); saveBrand(); });
+          var uploadBtn = document.getElementById('uploadLogoBtn');
+          if (uploadBtn) uploadBtn.addEventListener('click', function (ev) { ev.preventDefault(); uploadLogoHandler(); });
+        });
+      </script>
+
+    </main>
+  </div> <!-- end .dashboard-container -->
+
+</body>
+</html>

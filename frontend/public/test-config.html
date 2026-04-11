@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Config Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; }
+        #results { margin-top: 20px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>Configuration Test</h1>
+    
+    <button onclick="testAuth()">1. Test Login</button>
+    <button onclick="testBrandSave()">2. Test Brand Save</button>
+    <button onclick="testLogoUpload()">3. Test Logo Upload</button>
+    
+    <div id="results"></div>
+
+    <script>
+        const API_URL = 'http://localhost:8000/api';
+        let token = localStorage.getItem('auth_token');
+        
+        function log(msg, isError = false) {
+            const div = document.getElementById('results');
+            const className = isError ? 'error' : 'success';
+            div.innerHTML += `<div class="${className}">${msg}</div>`;
+        }
+
+        async function testAuth() {
+            document.getElementById('results').innerHTML = '';
+            log('Testing authentication...');
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'admin@example.com',
+                        password: 'admin123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.token) {
+                    token = data.token;
+                    localStorage.setItem('auth_token', token);
+                    log('✅ Login successful! Token: ' + token.substring(0, 20) + '...');
+                } else {
+                    log('❌ Login failed: ' + JSON.stringify(data), true);
+                }
+            } catch (error) {
+                log('❌ Error: ' + error.message, true);
+            }
+        }
+
+        async function testBrandSave() {
+            if (!token) {
+                log('❌ No token! Please login first.', true);
+                return;
+            }
+            
+            log('Testing brand save...');
+            
+            try {
+                const response = await fetch(`${API_URL}/admin/config/brand`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        brand_name: 'Sidra Ink and Brushes',
+                        brand_tagline: 'Beautiful Handcrafted Artwork'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('✅ Brand saved successfully!');
+                    log('Response: ' + JSON.stringify(data, null, 2));
+                } else {
+                    log('❌ Failed: ' + JSON.stringify(data), true);
+                }
+            } catch (error) {
+                log('❌ Error: ' + error.message, true);
+            }
+        }
+
+        async function testLogoUpload() {
+            if (!token) {
+                log('❌ No token! Please login first.', true);
+                return;
+            }
+            
+            log('Testing logo upload...');
+            log('Please select a logo file:');
+            
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                log('Uploading: ' + file.name);
+                
+                const formData = new FormData();
+                formData.append('logo', file);
+                
+                try {
+                    const response = await fetch(`${API_URL}/admin/config/upload-logo`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: formData
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        log('✅ Logo uploaded successfully!');
+                        log('Response: ' + JSON.stringify(data, null, 2));
+                        if (data.logo_url) {
+                            log('Logo URL: ' + data.logo_url);
+                        }
+                    } else {
+                        log('❌ Failed: ' + JSON.stringify(data), true);
+                    }
+                } catch (error) {
+                    log('❌ Error: ' + error.message, true);
+                }
+            };
+            
+            input.click();
+        }
+
+        // Auto-check token on load
+        window.onload = () => {
+            if (token) {
+                log('Found existing token: ' + token.substring(0, 20) + '...');
+            } else {
+                log('No token found. Please login first.', true);
+            }
+        };
+    </script>
+</body>
+</html>

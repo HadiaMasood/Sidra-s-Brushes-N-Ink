@@ -1,0 +1,23 @@
+# humanstxt.org/
+# The humans responsible & technology colophon
+
+# TEAM
+
+    Developer: Kiro AI Assistant
+    Site: https://sidrabni.com
+    Location: Pakistan
+
+# THANKS
+
+    To all the artists and customers who support handmade art
+
+# TECHNOLOGY COLOPHON
+
+    Frontend: React 18, Vite, TailwindCSS
+    Backend: Laravel 11, PHP 8.1
+    Database: SQLite/MySQL
+    Hosting: Apache/Nginx
+    Analytics: Google Analytics
+    Optimization: Gzip, Brotli, WebP
+    Performance: Lazy Loading, Code Splitting
+    SEO: Structured Data, Sitemap, Meta Tags

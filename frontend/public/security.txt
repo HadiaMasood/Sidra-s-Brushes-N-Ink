@@ -1,0 +1,12 @@
+# Security Contact Information
+Contact: mailto:security@sidrabni.com
+Contact: https://sidrabni.com/contact
+Expires: 2027-12-31T23:59:59.000Z
+Preferred-Languages: en, ur
+Canonical: https://sidrabni.com/.well-known/security.txt
+
+# Acknowledgments
+Acknowledgments: https://sidrabni.com/security-acknowledgments
+
+# Policy
+Policy: https://sidrabni.com/security-policy

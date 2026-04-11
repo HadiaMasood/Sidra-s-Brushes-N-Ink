@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Artwork Update Test - Direct API Call</title>
+    <style>
+        body { font-family: Arial; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .form-group { margin: 15px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+        input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; font-family: Arial; }
+        button { padding: 12px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .result { margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 4px; border-left: 4px solid #007bff; }
+        .error { border-left-color: #dc3545; color: #dc3545; }
+        .success { border-left-color: #28a745; color: #28a745; }
+        .info { border-left-color: #17a2b8; color: #17a2b8; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 12px; }
+        h1 { color: #333; }
+        h2 { color: #555; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Artwork Update Test</h1>
+        <p>Test updating an artwork with just an image file</p>
+
+        <div class="form-group">
+            <label>Admin Token:</label>
+            <input type="password" id="token" placeholder="Paste your auth token here">
+        </div>
+
+        <div class="form-group">
+            <label>Artwork ID:</label>
+            <input type="number" id="artworkId" placeholder="e.g., 1" value="1" min="1">
+        </div>
+
+        <div class="form-group">
+            <label>Image File (leave empty to update without image):</label>
+            <input type="file" id="imageFile" accept="image/*">
+            <small>Only upload image to test image-only update</small>
+        </div>
+
+        <div class="form-group">
+            <label>Or update other fields:</label>
+        </div>
+
+        <div class="form-group">
+            <label>Title (optional):</label>
+            <input type="text" id="title" placeholder="Leave empty to skip">
+        </div>
+
+        <div class="form-group">
+            <label>Description (optional):</label>
+            <textarea id="description" placeholder="Leave empty to skip" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Price (optional):</label>
+            <input type="number" id="price" placeholder="Leave empty to skip" min="0" step="0.01">
+        </div>
+
+        <button onclick="updateArtwork()" id="updateBtn">🚀 Update Artwork</button>
+        <button onclick="clearResults()" style="background: #6c757d; margin-left: 10px;">Clear Results</button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function updateArtwork() {
+            const token = document.getElementById('token').value.trim();
+            const artworkId = document.getElementById('artworkId').value;
+            const imageFile = document.getElementById('imageFile').files[0];
+            const title = document.getElementById('title').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const price = document.getElementById('price').value.trim();
+
+            if (!token) {
+                showResult('Token is required', 'error');
+                return;
+            }
+
+            if (!artworkId) {
+                showResult('Artwork ID is required', 'error');
+                return;
+            }
+
+            // Prepare FormData
+            const formData = new FormData();
+            formData.append('_method', 'PUT');
+            
+            // Add fields only if they have values
+            if (title) formData.append('title', title);
+            if (description) formData.append('description', description);
+            if (price) formData.append('price', price);
+            
+            // Add image if selected
+            if (imageFile) {
+                formData.append('image', imageFile);
+                showResult(`📦 Prepared: Image (${imageFile.name}, ${(imageFile.size / 1024).toFixed(2)}KB)${title ? ', Title' : ''}${description ? ', Description' : ''}${price ? ', Price' : ''}`, 'info');
+            } else {
+                showResult('⚠️ No image selected - will update other fields only', 'info');
+            }
+
+            try {
+                const btn = document.getElementById('updateBtn');
+                btn.disabled = true;
+                btn.textContent = '⏳ Updating...';
+
+                const apiBase = 'http://localhost:8000/api';
+                const url = `${apiBase}/artworks/${artworkId}`;
+
+                console.log('Sending request to:', url);
+                console.log('FormData entries:', Array.from(formData.entries()).map(([k, v]) => 
+                    k + ': ' + (v instanceof File ? `${v.name} (${v.size} bytes)` : v)
+                ));
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: formData,
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    let html = `<div class="result success">
+                        <h2>✅ Success!</h2>
+                        <p><strong>Message:</strong> ${data.message}</p>`;
+                    
+                    if (data.data) {
+                        html += `<h3>Updated Artwork:</h3>
+                        <pre>${JSON.stringify(data.data, null, 2)}</pre>`;
+                        
+                        if (data.data.image_url) {
+                            html += `<p><strong>Image URL:</strong> <a href="${data.data.image_url}" target="_blank">${data.data.image_url}</a></p>
+                            <img src="${data.data.image_url}" alt="Updated image" style="max-width: 300px; max-height: 300px; margin-top: 10px; border-radius: 4px;">`;
+                        }
+                    }
+                    
+                    html += `</div>`;
+                    document.getElementById('result').innerHTML = html;
+                } else {
+                    let errorMsg = data.message || 'Unknown error';
+                    let html = `<div class="result error">
+                        <h2>❌ Error</h2>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <p><strong>Message:</strong> ${errorMsg}</p>`;
+                    
+                    if (data.errors) {
+                        html += `<h3>Validation Errors:</h3>
+                        <pre>${JSON.stringify(data.errors, null, 2)}</pre>`;
+                    }
+                    
+                    html += `</div>`;
+                    document.getElementById('result').innerHTML = html;
+                }
+            } catch (error) {
+                showResult(`❌ Error: ${error.message}`, 'error');
+                console.error('Update error:', error);
+            } finally {
+                const btn = document.getElementById('updateBtn');
+                btn.disabled = false;
+                btn.textContent = '🚀 Update Artwork';
+            }
+        }
+
+        function showResult(message, type) {
+            const html = `<div class="result ${type}"><p>${message}</p></div>`;
+            document.getElementById('result').innerHTML = html;
+        }
+
+        function clearResults() {
+            document.getElementById('result').innerHTML = '';
+        }
+
+        // Allow Enter key to submit
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.target.matches('textarea')) {
+                updateArtwork();
+            }
+        });
+    </script>
+</body>
+</html>
