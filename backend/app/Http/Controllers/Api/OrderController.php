@@ -66,9 +66,13 @@ class OrderController extends Controller
                     'subtotal' => $subtotal,
                 ];
             }
+            
+            // Calculate shipping cost (Rs. 350, free for orders over 5000)
+            $shippingCost = $totalAmount > 5000 ? 0 : 350;
+            $finalTotal = $totalAmount + $shippingCost;
 
             $order = Order::create([
-                'order_number' => 'ORD-' . date('YmdHis') . '-' . rand(1000, 9999), // Added random to avoid collision
+                'order_number' => 'ORD-' . date('YmdHis') . '-' . rand(1000, 9999), 
                 'customer_name' => $validated['customer_name'],
                 'customer_email' => $validated['customer_email'],
                 'customer_phone' => $validated['customer_phone'],
@@ -77,7 +81,7 @@ class OrderController extends Controller
                 'customer_country' => $validated['customer_country'] ?? null,
                 'payment_method' => $validated['payment_method'] ?? 'cod',
                 'notes' => $validated['notes'] ?? null,
-                'total' => $totalAmount,
+                'total' => $finalTotal,
             ]);
 
             foreach ($orderItems as $item) {
@@ -102,6 +106,21 @@ class OrderController extends Controller
             }
 
             return response()->json($order->load('items', 'payment'), 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Format validation errors into a readable message
+            $errors = $e->errors();
+            // Check if artwork_id validation failed
+            $artworkErrors = array_filter(array_keys($errors), fn($key) => str_contains($key, 'artwork_id'));
+            if (!empty($artworkErrors)) {
+                return response()->json([
+                    'message' => 'One or more items in your cart are no longer available. Please clear your cart and try again.',
+                    'errors' => $errors,
+                ], 422);
+            }
+            return response()->json([
+                'message' => 'Validation failed: ' . implode(', ', array_merge(...array_values($errors))),
+                'errors' => $errors,
+            ], 422);
         } catch (\Exception $e) {
             \Log::error('Order creation failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return response()->json(['message' => 'Checkout failed: ' . $e->getMessage()], 500);

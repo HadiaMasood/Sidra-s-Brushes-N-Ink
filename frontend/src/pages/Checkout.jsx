@@ -87,7 +87,7 @@ export const CheckoutPage = () => {
     }
   };
 
-  const shippingCost = cartTotal > 5000 ? 0 : 300;
+  const shippingCost = cartTotal > 5000 ? 0 : 350;
   const finalTotal = cartTotal + shippingCost;
 
   if (cartItems.length === 0) {

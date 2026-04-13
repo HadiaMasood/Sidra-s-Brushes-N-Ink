@@ -25,6 +25,24 @@ export const CartPage = () => {
     try {
       setLoading(true);
 
+      // Filter out cart items that have no valid id (stale/deleted artworks)
+      const validItems = cartItems.filter(item => item.id != null && item.id !== undefined);
+      const invalidItems = cartItems.filter(item => !item.id);
+
+      if (invalidItems.length > 0) {
+        // Auto-remove invalid items from cart
+        invalidItems.forEach(item => dispatch(removeFromCart({ id: item.id, selectedType: item.selectedType })));
+        toast.error(`${invalidItems.length} item(s) were removed from your cart because they are no longer available.`);
+        setLoading(false);
+        return;
+      }
+
+      if (validItems.length === 0) {
+        toast.error('Your cart is empty. Please add items before checking out.');
+        setLoading(false);
+        return;
+      }
+
       const formData = new FormData();
       formData.append('customer_name', data.name);
       formData.append('customer_email', data.email);
@@ -42,8 +60,8 @@ export const CartPage = () => {
         return;
       }
 
-      // Add items as JSON string for FormData handling in backend
-      formData.append('items', JSON.stringify(cartItems.map(item => ({
+      // Add only valid items
+      formData.append('items', JSON.stringify(validItems.map(item => ({
         artwork_id: item.id,
         quantity: item.quantity,
         options: item.selectedType,
@@ -61,7 +79,20 @@ export const CartPage = () => {
       navigate(`/order-success/${orderId}`);
     } catch (error) {
       console.error('Checkout error:', error);
-      toast.error(error.response?.data?.message || error.message || 'Checkout failed');
+      const message = error.response?.data?.message || error.message || 'Checkout failed';
+      // If artwork validation failed, some items in the cart no longer exist in the DB
+      if (
+        message.toLowerCase().includes('artwork_id') ||
+        message.toLowerCase().includes('invalid') ||
+        error.response?.status === 422
+      ) {
+        // Auto-clear the stale cart and redirect to gallery
+        dispatch(clearCart());
+        toast.error('Some items in your cart are no longer available and have been removed. Please add items again from the gallery.');
+        setTimeout(() => navigate('/gallery'), 2500);
+      } else {
+        toast.error(message);
+      }
     } finally {
       setLoading(false);
     }
@@ -69,12 +100,14 @@ export const CartPage = () => {
 
   const handleWhatsAppOrder = () => {
     const phoneNumber = config.contact?.contact_phone?.replace(/\D/g, '') || '923275693892';
-    const advance = cartTotal * 0.5;
-    const cod = cartTotal * 0.5;
+    const shipping = cartTotal > 5000 ? 0 : 350;
+    const finalTotal = cartTotal + shipping;
+    const advance = finalTotal * 0.5;
+    const cod = finalTotal * 0.5;
     const message = `Hi! I'm interested in ordering from Sidra's Brushes N Ink.\n\nOrder Details:\n${cartItems.map(item => {
       const itemPrice = item.finalPrice || item.price;
       return `- ${item.title}: ${item.quantity} x Rs.${itemPrice.toLocaleString()}`;
-    }).join('\n')}\n* Framing is available on request. Framing cost will be calculated separately.*\n\nTotal Amount: Rs.${cartTotal.toFixed(2)}\nAdvance Payment (50%): Rs.${advance.toFixed(2)}\nCOD Amount (50%): Rs.${cod.toFixed(2)}`;
+    }).join('\n')}\nDelivery Charge: ${shipping === 0 ? 'FREE' : 'Rs.' + shipping}\n\n* Framing is available on request. Framing cost will be calculated separately.*\n\nTotal Amount: Rs.${finalTotal.toFixed(2)}\nAdvance Payment (50%): Rs.${advance.toFixed(2)}\nCOD Amount (50%): Rs.${cod.toFixed(2)}`;
     window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
@@ -99,7 +132,7 @@ export const CartPage = () => {
         <div className="lg:col-span-2">
           <div className="bg-white rounded-lg shadow">
             {cartItems.map((item, index) => (
-              <div key={`${item.id}-${item.selectedType}`} className={`flex items-center gap-4 p-4 ${index !== cartItems.length - 1 ? 'border-b' : ''}`}>
+              <div key={`${item.id}-${item.selectedType || 'default'}-${index}`} className={`flex items-center gap-4 p-4 ${index !== cartItems.length - 1 ? 'border-b' : ''}`}>
                 <img src={getArtworkImageUrl(item)} alt={item.title} className="w-20 h-20 object-cover rounded" />
 
                 <div className="flex-1">
@@ -158,16 +191,24 @@ export const CartPage = () => {
             {/* Breakdown */}
             <div className="border-t pt-4 space-y-2">
               <div className="flex justify-between text-gray-600">
-                <span>Total Amount:</span>
+                <span>Subtotal:</span>
                 <span>Rs. {cartTotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <span>Delivery Charge:</span>
+                <span>{cartTotal > 5000 ? 'FREE' : `Rs. 350.00`}</span>
+              </div>
+              <div className="flex justify-between font-bold text-ink-900 border-t pt-2">
+                <span>Total Amount:</span>
+                <span>Rs. {(cartTotal + (cartTotal > 5000 ? 0 : 350)).toFixed(2)}</span>
               </div>
               <div className="flex justify-between font-bold text-rose-600 bg-rose-50 p-2 rounded-sm">
                 <span>Advance Payment (50%):</span>
-                <span>Rs. {(cartTotal * 0.5).toFixed(2)}</span>
+                <span>Rs. {((cartTotal + (cartTotal > 5000 ? 0 : 350)) * 0.5).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-gray-600 italic">
                 <span>Remaining (COD):</span>
-                <span>Rs. {(cartTotal * 0.5).toFixed(2)}</span>
+                <span>Rs. {((cartTotal + (cartTotal > 5000 ? 0 : 350)) * 0.5).toFixed(2)}</span>
               </div>
             </div>
 

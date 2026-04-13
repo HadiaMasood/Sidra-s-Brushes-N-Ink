@@ -73,8 +73,24 @@ const cartSlice = createSlice({
       if (savedCart) {
         try {
           const parsed = JSON.parse(savedCart);
-          state.items = parsed.items || [];
-          state.total = parsed.total || 0;
+          const rawItems = parsed.items || [];
+
+          // Deduplicate: merge items with same id+selectedType
+          const deduped = [];
+          rawItems.forEach(item => {
+            const existing = deduped.find(i => i.id === item.id && i.selectedType === item.selectedType);
+            if (existing) {
+              existing.quantity += item.quantity || 1;
+            } else {
+              deduped.push({ ...item });
+            }
+          });
+
+          state.items = deduped;
+          state.total = deduped.reduce((sum, i) => {
+            const price = i.finalPrice || i.price;
+            return sum + (price * i.quantity);
+          }, 0);
         } catch (error) {
           console.error('Error loading cart from storage:', error);
         }
