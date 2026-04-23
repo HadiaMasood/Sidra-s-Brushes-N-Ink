@@ -1,5 +1,5 @@
 // Service Worker for Offline Support
-const CACHE_NAME = 'sidra-art-v1';
+const CACHE_NAME = 'sidra-art-v5'; // bumped to v5 to clear old localhost API cache
 const urlsToCache = [
   '/',
   '/index.html',
@@ -30,13 +30,18 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // NEVER cache API requests - always go to network directly
+  const url = new URL(event.request.url);
+  if (url.pathname.startsWith('/api/') || url.hostname !== location.hostname) {
+    return; // let the browser handle it normally
+  }
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Only cache successful responses
+        // Only cache successful responses for static assets (not API)
         if (response && response.status === 200) {
           const responseToCache = response.clone();
-          
           caches.open(CACHE_NAME)
             .then((cache) => {
               cache.put(event.request, responseToCache);
@@ -45,34 +50,27 @@ self.addEventListener('fetch', (event) => {
               console.log('Cache put failed:', error);
             });
         }
-        
         return response;
       })
       .catch(() => {
-        // When offline / network fails, fall back to cache.
-        // Ensure we always resolve to a Response (not undefined).
         return caches.match(event.request).then((cachedResponse) => {
           if (cachedResponse) {
             return cachedResponse;
           }
-          // As a final fallback, return the cached root page (SPA fallback) ONLY for HTML requests or navigations.
           if (event.request.mode === 'navigate' || (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html'))) {
             return caches.match('/').then((rootResponse) => {
               if (rootResponse) {
                 return rootResponse;
               }
-              return new Response('Offline', {
-                status: 503,
-                statusText: 'Service Unavailable',
-              });
+              return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
             });
           }
-          // If it's a module script or asset, just return a generic 404 so we don't return text/html for scripts
           return new Response('Resource completely unavailable offline', { status: 404 });
         });
       })
   );
 });
+
 
 // Activate event - Clean up old caches
 self.addEventListener('activate', (event) => {

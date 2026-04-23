@@ -24,6 +24,11 @@ class Cors
             'http://127.0.0.1:3007',
             'http://127.0.0.1:3008',
             'http://127.0.0.1:5173',
+            // Production domains
+            'https://sidrabni.com',
+            'https://www.sidrabni.com',
+            'http://sidrabni.com',
+            'http://www.sidrabni.com',
         ];
 
         $origin = $request->header('Origin');
