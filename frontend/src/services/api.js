@@ -171,7 +171,10 @@ export const customOrderService = {
 
 // ============ CONFIGURATION ============
 export const configService = {
-  getAll: () => api.get('/admin/config/all'),
+  // Always fetch fresh - no-cache ensures mobile/new visitors get latest admin settings
+  getAll: () => api.get('/admin/config/all', {
+    headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
+  }),
   getByKey: (key) => api.get(`/config/${key}`),
   // Use public logo endpoint by default so header and public pages can load without admin auth
   getLogo: () => api.get('/config/logo'),

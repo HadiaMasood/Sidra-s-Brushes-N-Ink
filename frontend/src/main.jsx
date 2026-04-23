@@ -37,25 +37,24 @@ const App = () => {
   const dispatch = useDispatch();
   const cartCount = useSelector(state => state.cart.items.length);
   const wishlistCount = useSelector(state => state.wishlist.items.length);
-  const configLoaded = React.useRef(false);
 
   useEffect(() => {
-    // Load full site config from API on app startup (only once)
-    if (!configLoaded.current) {
-      const loadConfig = async () => {
-        try {
-          const config = await configService.getAll();
-          if (config) {
-            dispatch(setFullConfig(config));
-            configLoaded.current = true;
-          }
-        } catch (error) {
-          console.error('Error loading config:', error);
+    // Always fetch fresh config from API on every page visit
+    // localStorage provides instant initial render, API gives latest data
+    const loadConfig = async () => {
+      try {
+        const config = await configService.getAll();
+        if (config) {
+          dispatch(setFullConfig(config));
         }
-      };
+      } catch (error) {
+        console.error('Error loading config:', error);
+        // Silently fail - localStorage fallback will be used
+      }
+    };
 
-      loadConfig();
-    }
+    loadConfig();
+
 
     // Load cart from localStorage
     dispatch(loadCartFromStorage());
