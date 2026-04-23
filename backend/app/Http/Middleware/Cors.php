@@ -32,21 +32,30 @@ class Cors
         ];
 
         $origin = $request->header('Origin');
-        
+
         // Log the origin for debugging
         if ($origin) {
             \Log::info('CORS Request', ['origin' => $origin, 'method' => $request->method(), 'url' => $request->fullUrl()]);
         }
 
-        $allowOrigin = in_array($origin, $allowedOrigins) ? $origin : (env('APP_ENV') === 'local' ? $origin : '*');
+        // IMPORTANT: Browsers block requests where Allow-Origin='*' AND Allow-Credentials='true'
+        // So: if origin is known → use specific origin + credentials
+        //     if origin is unknown → use '*' but WITHOUT credentials header
+        $isKnownOrigin = in_array($origin, $allowedOrigins);
+        $allowOrigin = $isKnownOrigin ? $origin : ($origin ?: '*');
 
         if ($request->isMethod('options')) {
-            return response('', 200)
+            $response = response('', 200)
                 ->header('Access-Control-Allow-Origin', $allowOrigin)
                 ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH')
                 ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, X-CSRF-TOKEN')
-                ->header('Access-Control-Allow-Credentials', 'true')
                 ->header('Access-Control-Max-Age', '86400');
+
+            if ($isKnownOrigin) {
+                $response->header('Access-Control-Allow-Credentials', 'true');
+            }
+
+            return $response;
         }
 
         $response = $next($request);
@@ -55,15 +64,22 @@ class Cors
         if (method_exists($response, 'header')) {
             $response->header('Access-Control-Allow-Origin', $allowOrigin)
                      ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH')
-                     ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, X-CSRF-TOKEN')
-                     ->header('Access-Control-Allow-Credentials', 'true');
+                     ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, X-CSRF-TOKEN');
+
+            if ($isKnownOrigin) {
+                $response->header('Access-Control-Allow-Credentials', 'true');
+            }
         } elseif (isset($response->headers)) {
             $response->headers->set('Access-Control-Allow-Origin', $allowOrigin);
             $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
             $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, X-CSRF-TOKEN');
-            $response->headers->set('Access-Control-Allow-Credentials', 'true');
+
+            if ($isKnownOrigin) {
+                $response->headers->set('Access-Control-Allow-Credentials', 'true');
+            }
         }
 
         return $response;
     }
 }
+

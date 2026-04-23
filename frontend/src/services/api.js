@@ -79,8 +79,14 @@ api.interceptors.response.use(
     console.error('Axios interceptor - Error response:', error.response?.data);
 
     if (error.response?.status === 401) {
-      localStorage.removeItem('auth_token');
-      window.location.href = '/login';
+      // Only redirect if not already on login page (prevents redirect loops)
+      const isOnLoginPage = window.location.pathname.includes('/admin/login');
+      if (!isOnLoginPage) {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/admin/login';
+      }
     }
     return Promise.reject(error);
   }
