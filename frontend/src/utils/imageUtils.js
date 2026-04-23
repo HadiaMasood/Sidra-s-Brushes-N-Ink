@@ -18,8 +18,14 @@ export const getImageUrl = (imagePath) => {
     return PLACEHOLDER_SVG;
   }
 
-  // If it's already a full URL, return it as-is
+  // If it's already a full URL
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    // If it's localhost in production, fix it
+    if (imagePath.includes('localhost:8000') || imagePath.includes('127.0.0.1:8000')) {
+      const apiBaseUrl = getBackendBaseUrl();
+      const path = imagePath.split('/storage/')[1] || imagePath.replace(/^.*storage\//, '');
+      return `${apiBaseUrl}/storage/${path}`;
+    }
     return imagePath;
   }
 
@@ -62,6 +68,7 @@ export const getImageUrl = (imagePath) => {
   return `${apiBaseUrl}/storage/${imagePath}`;
 };
 
+
 /**
  * Get image URL with fallback
  * Uses image_url if available, otherwise constructs from image_path
@@ -79,6 +86,15 @@ export const getArtworkImageUrl = (artwork) => {
     if (artwork.image_url.startsWith('/storage/')) {
       return `${apiBaseUrl}${artwork.image_url}`;
     }
+    
+    // Handle full localhost URLs (when backend APP_URL is still localhost but returns full URL)
+    if (artwork.image_url.includes('localhost:8000') || artwork.image_url.includes('127.0.0.1:8000')) {
+      const path = artwork.image_url.split('/storage/')[1];
+      if (path) {
+        return `${apiBaseUrl}/storage/${path}`;
+      }
+    }
+    
     return artwork.image_url;
   }
 
@@ -86,6 +102,11 @@ export const getArtworkImageUrl = (artwork) => {
   if (artwork.image_path) {
     // Check if image_path is already a full URL
     if (artwork.image_path.startsWith('http')) {
+      // Even if it's a full URL, if it's localhost, fix it
+      if (artwork.image_path.includes('localhost:8000') || artwork.image_path.includes('127.0.0.1:8000')) {
+        const path = artwork.image_path.split('/storage/')[1] || artwork.image_path.replace(/^.*storage\//, '');
+        return `${apiBaseUrl}/storage/${path}`;
+      }
       return artwork.image_path;
     }
     // Construct full URL
@@ -96,6 +117,7 @@ export const getArtworkImageUrl = (artwork) => {
   // Fallback
   return PLACEHOLDER_SVG;
 };
+
 
 /**
  * Generate responsive image srcset for different screen sizes
